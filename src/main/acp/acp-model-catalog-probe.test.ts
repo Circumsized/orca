@@ -188,9 +188,21 @@ describe('ACP model catalog probes', () => {
             id: 'deepseek-v4.1-flash',
             selector: 'magpie/deepseek-v4.1-flash',
             name: 'DeepSeek v4.1 Flash',
-            contextWindow: 128000
+            contextWindow: 128000,
+            thinking: ['low', 'high', 'max']
           },
-          { provider: 'magpie', id: 'step-5-preview', selector: 'magpie/step-5-preview' }
+          {
+            provider: 'magpie',
+            id: 'step-5-preview',
+            selector: 'magpie/step-5-preview',
+            thinking: ['minimal', 'low', 'medium', 'high', 'xhigh']
+          },
+          {
+            provider: 'magpie',
+            id: 'plain-model',
+            selector: 'magpie/plain-model',
+            name: 'Plain Model'
+          }
         ]
       })
     )
@@ -225,11 +237,30 @@ describe('ACP model catalog probes', () => {
         label: 'DeepSeek v4.1 Flash',
         description: 'magpie',
         isDefault: false,
-        efforts: []
+        efforts: [
+          { value: 'low', label: 'Low' },
+          { value: 'high', label: 'High' },
+          { value: 'max', label: 'Max' }
+        ],
+        defaultEffort: 'high'
       },
       {
         id: 'magpie/step-5-preview',
         label: 'Magpie Step 5 Preview',
+        description: 'magpie',
+        isDefault: false,
+        efforts: [
+          { value: 'minimal', label: 'Minimal' },
+          { value: 'low', label: 'Low' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'high', label: 'High' },
+          { value: 'xhigh', label: 'Extra high' }
+        ],
+        defaultEffort: 'high'
+      },
+      {
+        id: 'magpie/plain-model',
+        label: 'Plain Model',
         description: 'magpie',
         isDefault: false,
         efforts: []
