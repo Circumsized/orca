@@ -28,15 +28,22 @@ function assertPackagedDaemonEntryExists(resourcesDir) {
   return entryPath
 }
 
-// Why: `orca serve` runs the orcad serve-selection entry under
-// ELECTRON_RUN_AS_NODE (src/shared/orcad-local-serve-selection.ts), which
-// bypasses Electron's asar integration exactly like the CLI and daemon do.
-// asarUnpack lists this path on every platform, but the entry silently went
-// missing from app.asar.unpacked in two separate releases (#27307, then again
-// after the fix landed on main only and not in the release branch). Both times
-// serve fell back to Electron with a one-line notice instead of failing, so the
-// regression shipped twice. Check the unpacked path here, where a missing entry
-// fails packaging.
+/**
+ * Asserts the unpacked orcad serve-selection entry exists and returns its path.
+ *
+ * `orca serve` runs this entry under `ELECTRON_RUN_AS_NODE`
+ * (src/shared/orcad-local-serve-selection.ts), which bypasses Electron's asar
+ * integration exactly like the CLI and daemon do. `asarUnpack` lists the path on
+ * every platform, but the entry silently went missing from `app.asar.unpacked`
+ * in two separate releases (#27307, then again after the fix landed on `main`
+ * only and not in the release branch). Both times serve fell back to Electron
+ * with a one-line notice instead of failing, so the regression shipped twice.
+ *
+ * @param {string} resourcesDir Packaged Resources dir (Contents/Resources on
+ *   macOS, <appOutDir>/resources elsewhere).
+ * @returns {string} Absolute path to the unpacked serve-selection entry.
+ * @throws {Error} When the entry is missing from the packaged layout.
+ */
 function assertPackagedOrcadServeSelectionEntryExists(resourcesDir) {
   const entryPath = join(
     resourcesDir,

@@ -41,6 +41,11 @@ describe('verify-packaged-daemon-entry', () => {
     )
   })
 
+  /**
+   * Writes a stub orcad serve-selection entry into the fake packaged layout, so
+   * the present-entry path of `assertPackagedOrcadServeSelectionEntryExists`
+   * can be exercised without a real build.
+   */
   function writePackagedOrcadEntry() {
     const entryDir = join(resourcesDir, 'app.asar.unpacked', 'out', 'main', 'orcad')
     mkdirSync(entryDir, { recursive: true })
