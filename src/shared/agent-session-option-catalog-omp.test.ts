@@ -48,8 +48,7 @@ describe('omp model list probe', () => {
           { id: 'low', label: 'Low' },
           { id: 'high', label: 'High' },
           { id: 'max', label: 'Max' }
-        ],
-        defaultThinkingLevel: 'high'
+        ]
       },
       { id: 'minimax-cn/MiniMax-M3', label: 'MiniMax M3', description: 'minimax-cn' },
       {
@@ -60,8 +59,7 @@ describe('omp model list probe', () => {
           { id: 'minimal', label: 'Minimal' },
           { id: 'low', label: 'Low' },
           { id: 'medium', label: 'Medium' }
-        ],
-        defaultThinkingLevel: 'medium'
+        ]
       },
       { id: 'openai/gpt-5.5', label: 'Openai GPT 5.5', description: 'openai' }
     ])
@@ -147,34 +145,30 @@ describe('omp session option catalog', () => {
   it('discovers models through the same JSON listing the probe parses', () => {
     const listModels = OMP_SESSION_OPTION_CATALOG.listModels!
     expect(listModels.command).toBe('omp models --json')
-    expect(listModels.parse(LISTING)).toEqual([
-      {
-        id: 'deepseek/deepseek-v4-pro',
-        label: 'DeepSeek V4 Pro',
-        description: 'deepseek',
-        thinkingLevels: [
-          { id: 'low', label: 'Low' },
-          { id: 'high', label: 'High' },
-          { id: 'max', label: 'Max' }
-        ],
-        defaultThinkingLevel: 'high',
-        options: []
-      },
-      { id: 'minimax-cn/MiniMax-M3', label: 'MiniMax M3', description: 'minimax-cn', options: [] },
-      {
-        id: 'acme/no-high',
-        label: 'No High',
-        description: 'acme',
-        thinkingLevels: [
-          { id: 'minimal', label: 'Minimal' },
-          { id: 'low', label: 'Low' },
-          { id: 'medium', label: 'Medium' }
-        ],
-        defaultThinkingLevel: 'medium',
-        options: []
-      },
-      { id: 'openai/gpt-5.5', label: 'Openai GPT 5.5', description: 'openai', options: [] }
+    const parsed = listModels.parse(LISTING)
+    const effortOf = (id: string) => {
+      const row = parsed.find((candidate) => candidate.id === id)!
+      return row.options.flatMap((option) =>
+        option.kind.type === 'select'
+          ? [
+              {
+                id: option.id,
+                choices: option.kind.choices.map((choice) => choice.value),
+                defaultValue: option.kind.defaultValue
+              }
+            ]
+          : []
+      )
+    }
+    // A listed ladder becomes that model's own launch menu; a row without one stays bare.
+    expect(effortOf('deepseek/deepseek-v4-pro')).toEqual([
+      { id: 'effort', choices: ['low', 'high', 'max'], defaultValue: 'low' }
     ])
+    expect(effortOf('acme/no-high')).toEqual([
+      { id: 'effort', choices: ['minimal', 'low', 'medium'], defaultValue: 'minimal' }
+    ])
+    expect(effortOf('minimax-cn/MiniMax-M3')).toEqual([])
+    expect(effortOf('openai/gpt-5.5')).toEqual([])
   })
 
   it('launches a picked model with --model <selector>', () => {

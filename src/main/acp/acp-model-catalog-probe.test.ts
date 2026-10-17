@@ -241,8 +241,7 @@ describe('ACP model catalog probes', () => {
           { value: 'low', label: 'Low' },
           { value: 'high', label: 'High' },
           { value: 'max', label: 'Max' }
-        ],
-        defaultEffort: 'high'
+        ]
       },
       {
         id: 'magpie/step-5-preview',
@@ -255,8 +254,7 @@ describe('ACP model catalog probes', () => {
           { value: 'medium', label: 'Medium' },
           { value: 'high', label: 'High' },
           { value: 'xhigh', label: 'Extra high' }
-        ],
-        defaultEffort: 'high'
+        ]
       },
       {
         id: 'magpie/plain-model',

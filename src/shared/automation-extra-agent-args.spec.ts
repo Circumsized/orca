@@ -186,6 +186,8 @@ describe('parseExtraAgentArgs rejections', () => {
     ['grok', '--permission-mode bypassPermissions', '"--permission-mode"'],
     ['omp', '--effort high', '"--effort"'],
     ['omp', '--thinking low --thinking=high', 'effort more than once'],
+    ['omp', '--thinking ultra', 'Allowed values'],
+    ['omp', '--thinking off', 'Allowed values'],
     ['codebuddy', '--add-dir x', '"--add-dir"']
   ] as const)('%s rejects %j', (agent, extras, message) => {
     expect(rejection(agent, extras)).toContain(message)

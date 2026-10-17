@@ -47,27 +47,8 @@ const OMP_THINKING_LEVEL_LABELS: Record<string, string> = {
   inherit: 'Inherit'
 }
 
-/** The tier order a thinking ladder climbs, low to high; modes like `off`/`auto` sit apart. */
-const OMP_THINKING_TIER_ORDER = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max']
-
-/** OMP runs its built-in `high` when no level is sent; a model that lacks it runs the
- *  closest tier its own ladder lists. */
-function ompDefaultThinkingLevel(levels: readonly string[]): string {
-  if (levels.includes('high')) {
-    return 'high'
-  }
-  const highIndex = OMP_THINKING_TIER_ORDER.indexOf('high')
-  let nearest = levels[0]!
-  let nearestIndex = -1
-  for (const level of levels) {
-    const index = OMP_THINKING_TIER_ORDER.indexOf(level)
-    if (index !== -1 && index < highIndex && index > nearestIndex) {
-      nearest = level
-      nearestIndex = index
-    }
-  }
-  return nearest
-}
+/** The effort tiers OMP accepts as levels; `off`, `auto`, and `inherit` are modes, not tiers. */
+export const OMP_THINKING_TIERS = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'] as const
 
 /** Parses `omp models --json`. Ids are OMP's `provider/model` selector — the form
  *  `--model` and `/model` resolve exactly, unlike a bare model id that several
@@ -120,8 +101,7 @@ export function parseOmpModelList(stdout: string): CommitMessageModel[] {
             thinkingLevels: thinking.map((level) => ({
               id: level,
               label: OMP_THINKING_LEVEL_LABELS[level] ?? level
-            })),
-            defaultThinkingLevel: ompDefaultThinkingLevel(thinking)
+            }))
           }
         : {}),
       ...(contextWindow !== null && Number.isFinite(contextWindow) && contextWindow > 0

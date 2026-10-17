@@ -216,14 +216,12 @@ const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
         // The listing names the account's models, not which one its config picks.
         isDefault: false,
         // The listing states each model's own thinking ladder, so the menu offers exactly the
-        // tiers that model runs — never one wider than its ceiling.
+        // tiers that model runs — never one wider than its ceiling. The listing names no
+        // default tier, so none is claimed; a live chat reports the config's own choice.
         efforts: (model.thinkingLevels ?? []).map((level) => ({
           value: level.id,
           label: level.label
-        })),
-        // OMP runs its built-in default tier (`high`, or the closest one the model lists)
-        // when nothing is sent, so the menu can name it.
-        ...(model.defaultThinkingLevel ? { defaultEffort: model.defaultThinkingLevel } : {})
+        }))
       })),
     listingNamesConfiguredModel: false
   },
