@@ -50,6 +50,11 @@ const OMP_THINKING_LEVEL_LABELS: Record<string, string> = {
 /** The effort tiers OMP accepts as levels; `off`, `auto`, and `inherit` are modes, not tiers. */
 export const OMP_THINKING_TIERS = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'] as const
 
+/** The picker label for one OMP thinking value; an unknown value keeps its own text. */
+export function ompThinkingLabel(level: string): string {
+  return OMP_THINKING_LEVEL_LABELS[level] ?? level
+}
+
 /** Parses `omp models --json`. Ids are OMP's `provider/model` selector — the form
  *  `--model` and `/model` resolve exactly, unlike a bare model id that several
  *  providers can share. */
@@ -100,7 +105,7 @@ export function parseOmpModelList(stdout: string): CommitMessageModel[] {
         ? {
             thinkingLevels: thinking.map((level) => ({
               id: level,
-              label: OMP_THINKING_LEVEL_LABELS[level] ?? level
+              label: ompThinkingLabel(level)
             }))
           }
         : {}),

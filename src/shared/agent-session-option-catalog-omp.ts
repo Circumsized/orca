@@ -4,23 +4,37 @@ import type {
   CatalogModel,
   CatalogOption
 } from './agent-session-option-catalog-types'
-import { parseOmpModelList } from './omp-model-list-probe'
+import { OMP_THINKING_TIERS, ompThinkingLabel, parseOmpModelList } from './omp-model-list-probe'
 
 // The widest effort menu a model with no listing row may still accept: OMP clamps a tier a
 // model lacks to the closest one it supports, so launch may offer more than a model runs.
 // `off`, `auto` and `inherit` are modes rather than tiers and stay out of it.
-const OMP_EFFORT_CHOICES = [
-  { value: 'minimal', label: 'Minimal' },
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'xhigh', label: 'Extra high' },
-  { value: 'max', label: 'Max' }
-]
+const OMP_EFFORT_CHOICES = OMP_THINKING_TIERS.map((value) => ({
+  value,
+  label: ompThinkingLabel(value)
+}))
+
+/** The tier OMP runs when a launch sends none. */
+const OMP_DEFAULT_TIER = 'high'
+
+const ompTierOrder = (id: string): number => (OMP_THINKING_TIERS as readonly string[]).indexOf(id)
+
+/** OMP runs `high` when a launch names no tier and clamps a tier a model lacks down to the
+ *  closest one it lists, so an untouched picker names the tier the CLI would actually run. */
+function ompDefaultTier(levels: readonly { id: string }[]): string {
+  let tier = levels[0]!.id
+  for (const level of levels) {
+    if (ompTierOrder(level.id) > ompTierOrder(OMP_DEFAULT_TIER)) {
+      break
+    }
+    tier = level.id
+  }
+  return tier
+}
 
 /** One reasoning-effort option. `levels` builds a listed model's own menu; without levels it
- *  builds the launch-safe fallback. A listed menu starts on its lowest tier, like a
- *  discovered model's menu; the fallback starts on `high`, OMP's own default tier. */
+ *  builds the launch-safe fallback. Either menu starts on the tier OMP itself would run, so a
+ *  launch that sends it changes nothing the CLI was not already doing. */
 // Why: launch-only. OMP registered its `/effort` command in 18.5.0, but the launch resolver
 // serves a structured chat from 17.0.5, and a terminal chat names no version to gate on, so
 // no live command is offered here. A structured chat sets effort through the `thought_level`
@@ -36,7 +50,7 @@ function ompEffort(levels?: readonly { id: string; label: string }[]): CatalogOp
       choices: listed
         ? listed.map(({ id, label }) => ({ value: id, label }))
         : [...OMP_EFFORT_CHOICES],
-      defaultValue: listed ? listed[0]!.id : 'high'
+      defaultValue: listed ? ompDefaultTier(listed) : OMP_DEFAULT_TIER
     },
     apply: {
       launchArgs: (value) => ['--thinking', String(value)],

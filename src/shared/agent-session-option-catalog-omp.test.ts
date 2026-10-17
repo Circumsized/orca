@@ -161,11 +161,13 @@ describe('omp session option catalog', () => {
       )
     }
     // A listed ladder becomes that model's own launch menu; a row without one stays bare.
+    // A listed model's menu starts where OMP itself would start: `high`, or the closest
+    // lower tier it lists, so picking a model never changes the effort OMP runs.
     expect(effortOf('deepseek/deepseek-v4-pro')).toEqual([
-      { id: 'effort', choices: ['low', 'high', 'max'], defaultValue: 'low' }
+      { id: 'effort', choices: ['low', 'high', 'max'], defaultValue: 'high' }
     ])
     expect(effortOf('acme/no-high')).toEqual([
-      { id: 'effort', choices: ['minimal', 'low', 'medium'], defaultValue: 'minimal' }
+      { id: 'effort', choices: ['minimal', 'low', 'medium'], defaultValue: 'medium' }
     ])
     expect(effortOf('minimax-cn/MiniMax-M3')).toEqual([])
     expect(effortOf('openai/gpt-5.5')).toEqual([])
