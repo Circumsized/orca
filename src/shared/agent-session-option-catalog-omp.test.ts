@@ -229,17 +229,19 @@ describe('omp session option catalog', () => {
     }
   })
 
-  it('switches a live effort through the /effort command omp itself registers', () => {
+  it('keeps effort launch-only: omp registered /effort in 18.5.0, past the 17.0.5 floor', () => {
     const effort = OMP_SESSION_OPTION_CATALOG.unknownModelOptions?.find(
       (option) => option.id === 'effort'
     )
-    expect(effort?.apply.midSession?.kind).toBe('command')
-    if (effort?.apply.midSession?.kind !== 'command') {
-      throw new Error('expected a command apply')
-    }
-    expect(effort.apply.midSession.build('xhigh')).toBe('/effort xhigh')
-    expect(parseBuiltSessionOptionCommand(effort.apply.midSession.build, '/effort xhigh')).toBe(
-      'xhigh'
+    // A structured chat sets effort through the thought_level config option omp advertises;
+    // a terminal chat names no version to gate a live command on, so none is offered.
+    expect(effort?.apply.midSession).toBeUndefined()
+    expect(effort?.apply.launchArgs?.('xhigh')).toEqual(['--thinking', 'xhigh'])
+    // A listed model's own ladder is launch-only for the same reason.
+    const listed = OMP_SESSION_OPTION_CATALOG.listModels!.parse(LISTING).find(
+      (model) => model.id === 'deepseek/deepseek-v4-pro'
     )
+    expect(listed?.options[0]?.apply.midSession).toBeUndefined()
+    expect(listed?.options[0]?.apply.launchArgs?.('low')).toEqual(['--thinking', 'low'])
   })
 })

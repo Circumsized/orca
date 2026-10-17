@@ -21,6 +21,10 @@ const OMP_EFFORT_CHOICES = [
 /** One reasoning-effort option. `levels` builds a listed model's own menu; without levels it
  *  builds the launch-safe fallback. A listed menu starts on its lowest tier, like a
  *  discovered model's menu; the fallback starts on `high`, OMP's own default tier. */
+// Why: launch-only. OMP registered its `/effort` command in 18.5.0, but the launch resolver
+// serves a structured chat from 17.0.5, and a terminal chat names no version to gate on, so
+// no live command is offered here. A structured chat sets effort through the `thought_level`
+// config option OMP advertises over ACP, never a command string.
 function ompEffort(levels?: readonly { id: string; label: string }[]): CatalogOption {
   const listed = levels && levels.length > 0 ? levels : null
   return {
@@ -36,9 +40,7 @@ function ompEffort(levels?: readonly { id: string; label: string }[]): CatalogOp
     },
     apply: {
       launchArgs: (value) => ['--thinking', String(value)],
-      removeAgentArgs: (tokens) => removeAgentArgOption('omp', tokens, ['--thinking']),
-      // OMP applies a level to the running session through its own `/effort` command.
-      midSession: { kind: 'command', build: (value) => `/effort ${String(value)}` }
+      removeAgentArgs: (tokens) => removeAgentArgOption('omp', tokens, ['--thinking'])
     }
   }
 }
